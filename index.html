@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Billboard top 100</title>
+  </head>
+  <body>
+    <svg id="svg" width="800" height="600"></svg>
+    <style>
+      body,
+      html {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #svg {
+        border: 1px solid;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+    <script>
+      // set dimensions/margins of graph
+      const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+      const width = 800 - margin.left - margin.right;
+      const height = 600 - margin.top - margin.bottom;
+
+      const svg = d3
+        .select("#svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      d3.csv("charts.csv").then((data) => {
+        const data_1981 = data.filter((song) => {
+          const song_date = new Date(song.date);
+          return song_date.getFullYear() === 1981;
+        });
+        const data_1981_top10 = data_1981.filter((song) => {
+          return parseInt(song.rank) < 6;
+        });
+        console.log(data_1981_top10);
+
+        // making scaling...aka 'x' and 'y' axis
+        const xScale = d3
+          .scaleLinear()
+          .domain([0, d3.max(data_1981_top10, (d) => parseInt(d.rank))])
+          .range([height, 0]);
+
+        const yScale = d3
+          .scaleLinear()
+          .domain([
+            0,
+            d3.max(data_1981_top10, (d) => parseInt(d["weeks-on-board"])),
+          ])
+          .range([height, 0]);
+        console.log(d3.max(data_1981_top10, (d) => parseInt(d["weeks-on-board"])));
+
+        // x-axis
+        svg
+          .append("g")
+          .attr("transform", `translate(0, ${height})`)
+          .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
+
+        // y-axis
+        svg.append("g").call(d3.axisLeft(yScale).tickFormat(d3.format("d")));
+
+        // Plot the data
+        svg
+          .selectAll("circle")
+          .data(data_1981_top10)
+          .enter()
+          .append("circle")
+          .attr("cx", (d) => xScale(parseInt(d.rank)))
+          .attr("cy", (d) => yScale(parseInt(d["weeks-on-board"])))
+          .attr("r", 5)
+          .attr("fill", "blue");
+      });
+    </script>
+  </body>
+</html>
