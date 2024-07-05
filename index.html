@@ -95,7 +95,32 @@
                 .style("text-anchor", "middle")
                 .text("Weeks on Board");
 
+                const xAxis = svg.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
+                
+            xAxis.append("text")
+                .attr("x", width / 2)
+                .attr("y", margin.bottom - 10)
+                .attr("fill", "white")
+                .style("text-anchor", "middle")
+                .text("Rank");
+
+            // y-axis
+            const yAxis = svg.append("g")
+                .call(d3.axisLeft(yScale).tickFormat(d3.format("d")));
+                
+            yAxis.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 15)
+                .attr("x", -height / 2)
+                .attr("dy", "1em")
+                .attr("fill", "white")
+                .style("text-anchor", "middle")
+                .text("Weeks on Board");
+
             const tooltip = d3.select("#tooltip");
+            
 
             // Plot the data
             svg.selectAll("circle")
