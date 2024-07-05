@@ -1,119 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Billboard top 100</title>
-  </head>
-  <body>
-    <svg id="svg" width="800" height="600"></svg>
+    <title>Billboard Top 100</title>
     <style>
-      body,
-      html {
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+        body,
+        html {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            color: white;
+        }
+        
+        h1 {
+            color: white;
+        }
 
-      #svg {
-        border: 1px solid;
-      }
+        #svg {
+            border: 1px solid white;
+        }
 
-      .tooltip {
-        position: absolute;
-        background-color: white;
-        border: 1px solid #d3d3d3;
-        padding: 5px;
-        border-radius: 3px;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.3s;
-      }
+        .tooltip {
+            position: absolute;
+            background-color: white;
+            color: black;
+            border: 1px solid #d3d3d3;
+            padding: 5px;
+            border-radius: 3px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
     </style>
-
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+<body>
+    <h1>Top 5 Songs of 1981</h1>
+    <svg id="svg" width="800" height="600"></svg>
     <div class="tooltip" id="tooltip"></div>
-
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script>
-          // set dimensions/margins of graph
-          const margin = { top: 20, right: 30, bottom: 40, left: 50 };
-          const width = 800 - margin.left - margin.right;
-          const height = 600 - margin.top - margin.bottom;
+        // Set dimensions/margins of graph
+        const margin = { top: 20, right: 30, bottom: 50, left: 70 };
+        const width = 800 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom;
 
-          const svg = d3
-            .select("#svg")
+        const svg = d3.select("#svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+            .attr("transform", `translate(${margin.left},${margin.top})`)
+            .style("background-color", "white");
 
-          d3.csv("charts.csv").then((data) => {
+        d3.csv("charts.csv").then((data) => {
             const data_1981 = data.filter((song) => {
-              const song_date = new Date(song.date);
-              return song_date.getFullYear() === 1981;
+                const song_date = new Date(song.date);
+                return song_date.getFullYear() === 1981;
             });
             const data_1981_top10 = data_1981.filter((song) => {
-              return parseInt(song.rank) < 6;
+                return parseInt(song.rank) < 6;
             });
-            console.log(data_1981_top10);
 
-            // making scaling...aka 'x' and 'y' axis
-            const xScale = d3
-              .scaleLinear()
-              .domain([0, d3.max(data_1981_top10, (d) => parseInt(d.rank))])
-              .range([height, 0]);
+            // Making scaling for 'x' and 'y' axis
+            const xScale = d3.scaleLinear()
+                .domain([0, d3.max(data_1981_top10, (d) => parseInt(d.rank))])
+                .range([0, width]);
 
-            const yScale = d3
-              .scaleLinear()
-              .domain([
-                0,
-                d3.max(data_1981_top10, (d) => parseInt(d["weeks-on-board"])),
-              ])
-              .range([height, 0]);
-            console.log(d3.max(data_1981_top10, (d) => parseInt(d["weeks-on-board"])));
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(data_1981_top10, (d) => parseInt(d["weeks-on-board"]))])
+                .range([height, 0]);
 
             // x-axis
-            svg
-                .append("g")
+            svg.append("g")
                 .attr("transform", `translate(0, ${height})`)
                 .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
                 .append("text")
                 .attr("x", width / 2)
                 .attr("y", margin.bottom - 10)
-                .attr("fill", "black")
+                .attr("fill", "white")
                 .style("text-anchor", "middle")
                 .text("Rank");
 
             // y-axis
-            svg
-                .append("g")
+            svg.append("g")
                 .call(d3.axisLeft(yScale).tickFormat(d3.format("d")))
                 .append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", -margin.left + 15)
                 .attr("x", -height / 2)
                 .attr("dy", "1em")
-                .attr("fill", "black")
+                .attr("fill", "white")
                 .style("text-anchor", "middle")
                 .text("Weeks on Board");
 
-            const tooltip = d3.select("#tooltip")
+            const tooltip = d3.select("#tooltip");
+
             // Plot the data
-            svg
-              .selectAll("circle")
-              .data(data_1981_top10)
-              .enter()
-              .append("circle")
-              .attr("cx", (d) => xScale(parseInt(d.rank)))
-              .attr("cy", (d) => yScale(parseInt(d["weeks-on-board"])))
-              .attr("r", 5)
-              .attr("fill", "blue")
-              // on hover attribute
-              .on("mouseover", (event, d) => {
+            svg.selectAll("circle")
+                .data(data_1981_top10)
+                .enter()
+                .append("circle")
+                .attr("cx", (d) => xScale(parseInt(d.rank)))
+                .attr("cy", (d) => yScale(parseInt(d["weeks-on-board"])))
+                .attr("r", 5)
+                .attr("fill", "yellow")
+                // on hover attribute
+                .on("mouseover", (event, d) => {
                     tooltip.transition().duration(200).style("opacity", .9);
                     // displays song/artist
-                    tooltip.html(`<strong>Rank:</strong>${d.rank}<br><strong>Song:</strong> ${d.song}<br><strong>Artist:</strong> ${d.artist}`)
+                    tooltip.html(`<strong>Rank:</strong> ${d.rank}<br><strong>Song:</strong> ${d.song}<br><strong>Artist:</strong> ${d.artist}`)
                         .style("left", (event.pageX + 5) + "px")
                         .style("top", (event.pageY - 28) + "px");
                 })
@@ -124,11 +121,7 @@
                 .on("mouseout", () => {
                     tooltip.transition().duration(500).style("opacity", 0);
                 });
-
-              
-
-              
-      })
+        });
     </script>
-  </body>
+</body>
 </html>
