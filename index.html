@@ -75,12 +75,28 @@
 
             // x-axis
             svg
-              .append("g")
-              .attr("transform", `translate(0, ${height})`)
-              .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
+                .append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
+                .append("text")
+                .attr("x", width / 2)
+                .attr("y", margin.bottom - 10)
+                .attr("fill", "black")
+                .style("text-anchor", "middle")
+                .text("Rank");
 
             // y-axis
-            svg.append("g").call(d3.axisLeft(yScale).tickFormat(d3.format("d")));
+            svg
+                .append("g")
+                .call(d3.axisLeft(yScale).tickFormat(d3.format("d")))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 15)
+                .attr("x", -height / 2)
+                .attr("dy", "1em")
+                .attr("fill", "black")
+                .style("text-anchor", "middle")
+                .text("Weeks on Board");
 
             const tooltip = d3.select("#tooltip")
             // Plot the data
@@ -93,9 +109,11 @@
               .attr("cy", (d) => yScale(parseInt(d["weeks-on-board"])))
               .attr("r", 5)
               .attr("fill", "blue")
+              // on hover attribute
               .on("mouseover", (event, d) => {
                     tooltip.transition().duration(200).style("opacity", .9);
-                    tooltip.html(`<strong>Song:</strong> ${d.song}<br><strong>Artist:</strong> ${d.artist}`)
+                    // displays song/artist
+                    tooltip.html(`<strong>Rank:</strong>${d.rank}<br><strong>Song:</strong> ${d.song}<br><strong>Artist:</strong> ${d.artist}`)
                         .style("left", (event.pageX + 5) + "px")
                         .style("top", (event.pageY - 28) + "px");
                 })
@@ -106,6 +124,8 @@
                 .on("mouseout", () => {
                     tooltip.transition().duration(500).style("opacity", 0);
                 });
+
+              
 
               
       })
